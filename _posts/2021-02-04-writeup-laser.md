@@ -6,7 +6,7 @@ categories: [HackTheBox]
 tags: [hackthebox, htb, laser,PRET,Printer Exploitation,socat,pspy]
 ---
 
-![Desktop View]({{ "/assets/img/HackTheBox/Laser/banner.png" | relative_url }})
+![Desktop View]({{ "/assets/img/HackTheBox/Laser/banner.jpeg" | relative_url }})
 ---
 
 <strong><span style="color:#00ff00">Introduction</span></strong>
