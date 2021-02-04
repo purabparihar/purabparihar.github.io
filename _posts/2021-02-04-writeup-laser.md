@@ -3,7 +3,7 @@ title: HackTheBox Laser
 author: Purab Parihar
 date: 2021-02-04 14:10:00 +0800
 categories: [HackTheBox]
-tags: [hackthebox, htb, blunder]
+tags: [hackthebox, htb, laser,PRET,Printer Exploitation,socat,pspy]
 ---
 
 ![Desktop View]({{ "/assets/img/HackTheBox/Laser/banner.png" | relative_url }})
