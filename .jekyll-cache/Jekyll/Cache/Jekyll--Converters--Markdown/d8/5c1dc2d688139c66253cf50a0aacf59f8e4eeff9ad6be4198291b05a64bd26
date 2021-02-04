@@ -1,0 +1,93 @@
+I"�<p><img src="/assets/img/vulnnodeapp/main.png" alt="Desktop View" /></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Introduction</span></strong></p>
+
+<hr />
+
+<p>Today I am going to do <a href="https://twitter.com/4auvar">@4auvar</a>’s Vulnerable Node Application (VulnNodeApp).
+<a href="https://github.com/4auvar/VulnNodeApp">Here</a> you can get the VulnNodeApp which you can install on local environment (Ubuntu-VirtualBox) and do Pentesting.
+We are going to analyze the backend code for better understanding of vulnerabilities that are covered in this VulnNodeApp.</p>
+
+<p>So let’s start Pentesting this awesome application.</p>
+
+<p><span style="color:#ff5555">This blog is meant for educational purposes only.</span></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Error Based SQL Injection</span></strong></p>
+
+<hr />
+
+<p>The first vulnerability category in this vulnerable web application is SQL Injection. <a href="https://twitter.com/4auvar">@4auvar</a> covered multiple types of SQL Injections here. In the end he also gave one exercise to solve.</p>
+
+<ul>
+  <li>Error Based SQLi</li>
+  <li>Blind SQLi</li>
+  <li>Second Order SQLi</li>
+  <li>Exercise</li>
+</ul>
+
+<p><img src="/assets/img/vulnnodeapp/sqli-module.png" alt="Desktop View" /></p>
+
+<p>Let’s take the first vulnerability which is Error Based SQLi.</p>
+
+<p>After visiting the page I found that the <strong>id</strong> parameter going in URL.</p>
+
+<p><img src="/assets/img/vulnnodeapp/sqli-url.png" alt="Desktop View" /></p>
+
+<p>When I inserted <strong>‘</strong> (Single Quote) it gave me database error.</p>
+
+<p><img src="/assets/img/vulnnodeapp/dbms-error.png" alt="Desktop View" /></p>
+
+<p>By this error we can guess that this is error based SQLi. And as you can see the DBMS is <strong>MySQL</strong>, For further exploitation, I used SqlMap to confirm and retrieve data from server.</p>
+
+<p><img src="/assets/img/vulnnodeapp/sqlmap-1.png" alt="Desktop View" />
+<img src="/assets/img/vulnnodeapp/sqlmap-2.png" alt="Desktop View" /></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Source Code Analysis</span></strong></p>
+
+<hr />
+
+<p>Now lets take a look at the vulnerable code of this web application.</p>
+
+<p>When I opened <a href="https://github.com/4auvar/VulnNodeApp/blob/master/routes/users/index.js">/routes/users/index.js</a> file, I found routes in which below URL routing has been done.</p>
+
+<p><img src="/assets/img/vulnnodeapp/error-sqli-routing.png" alt="Desktop View" /></p>
+
+<p>Here the request method is GET which retrieves <strong>/error-based-sqli</strong> page from server, But before that it checks for authentication of user with <strong>isAuthenticated</strong> and then it calls <strong>errorBasedSqli</strong> function from <a href="https://github.com/4auvar/VulnNodeApp/blob/master/routes/users/user.js">user.js</a> file.</p>
+
+<p>If you don’t know what is URL routing, Models, Views, Controllers This is how MVC architecture works.</p>
+
+<p><img src="/assets/img/vulnnodeapp/mvc-express.png" alt="Desktop View" /></p>
+
+<p>So now lets look at the <a href="https://github.com/4auvar/VulnNodeApp/blob/master/routes/users/user.js">/routes/users/user.js</a> file and analyze further code.</p>
+
+<p>In user.js file we got <strong>errorBasedSqli</strong> function which was passing <strong>id</strong> parameter to another function called <strong>getUser</strong>.</p>
+
+<p><img src="/assets/img/vulnnodeapp/errorBasedSqli-function.png" alt="Desktop View" /></p>
+
+<p>The <strong>getUser</strong> function was passing the value of <strong>id</strong> parameter to function called <strong>findUserById</strong> which is available in <a href="https://github.com/4auvar/VulnNodeApp/blob/master/controllers/usersController.js">/controllers/usersController.js</a> file. This is where the SQLi Error is getting shown to user because as you can see whatever the error is getting, The <strong>getUser</strong> function is sending that error to user with below code.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>catch((err) =&gt; {
+                return res.send(err);
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/assets/img/vulnnodeapp/getUser-function.png" alt="Desktop View" /></p>
+
+<p>After analyzing the <a href="https://github.com/4auvar/VulnNodeApp/blob/master/controllers/usersController.js">usersController.js</a> file, I found that there is one class named <strong>UsersController</strong> in which <strong>findUserById</strong> function has been created and the input taken from <strong>findUserById</strong> is passed to the another function named <strong>findUserById</strong> which is available in <a href="https://github.com/4auvar/VulnNodeApp/blob/master/models/usersModel.js">/models/usersModel.js</a> file.</p>
+
+<p><img src="/assets/img/vulnnodeapp/UsersController-class.png" alt="Desktop View" /></p>
+
+<p>Now here is the main part comes, The <a href="https://github.com/4auvar/VulnNodeApp/blob/master/models/usersModel.js">usersModel.js</a> file contains a class named <strong>UsersModel</strong> and inside this class there is another function named <strong>findUserById</strong> which was making queries to database and here you can see our input <strong>id</strong> is passing without any checks.</p>
+
+<p><img src="/assets/img/vulnnodeapp/UsersModel-class.png" alt="Desktop View" /></p>
+
+<p>Here we have completed Error Based SQLi vulnerability. Stay tuned for next part of this VulnNodeApp.</p>
+
+<p><span style="color:#ff5555"><strong>Thanks for reading this writeup and all suggestions are welcome.</strong></span></p>
+:ET

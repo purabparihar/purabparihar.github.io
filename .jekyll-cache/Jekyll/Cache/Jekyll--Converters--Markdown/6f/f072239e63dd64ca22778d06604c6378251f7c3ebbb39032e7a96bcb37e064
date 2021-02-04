@@ -1,0 +1,152 @@
+I"q
+<div id="archives" class="pl-xl-2">
+
+  
+  
+  
+    
+    
+  <span class="lead">2020</span>
+  <ul class="list-unstyled">
+  
+    <li>
+      <div>
+        
+        
+        <span class="date day">28</span>
+        <span class="date month small text-muted">Nov</span>
+        <a href="/posts/ultratech/">UltraTech Machine - Writeup</a>
+      </div>
+    </li>
+  
+
+  
+  
+  
+    <li>
+      <div>
+        
+        
+        <span class="date day">26</span>
+        <span class="date month small text-muted">Nov</span>
+        <a href="/posts/weak-file-permissions-2/">Weak File Permissions - Writable /etc/shadow</a>
+      </div>
+    </li>
+  
+
+  
+  
+  
+    <li>
+      <div>
+        
+        
+        <span class="date day">24</span>
+        <span class="date month small text-muted">Nov</span>
+        <a href="/posts/weak-file-permissions-1/">Weak File Permissions - Readable /etc/shadow</a>
+      </div>
+    </li>
+  
+
+  
+  
+  
+    <li>
+      <div>
+        
+        
+        <span class="date day">20</span>
+        <span class="date month small text-muted">Nov</span>
+        <a href="/posts/service-exploits/">Service Exploits - Mysql</a>
+      </div>
+    </li>
+  
+
+  
+  
+  
+    <li>
+      <div>
+        
+        
+        <span class="date day">09</span>
+        <span class="date month small text-muted">Nov</span>
+        <a href="/posts/0day-tryhackme/">0day Machine - Writeup</a>
+      </div>
+    </li>
+  
+
+  
+  
+  
+    <li>
+      <div>
+        
+        
+        <span class="date day">17</span>
+        <span class="date month small text-muted">Oct</span>
+        <a href="/posts/drozer-basics-1/">Drozer - Basics</a>
+      </div>
+    </li>
+  
+
+  
+  
+  
+    <li>
+      <div>
+        
+        
+        <span class="date day">17</span>
+        <span class="date month small text-muted">Oct</span>
+        <a href="/posts/vulnnodeapp-1/">VulnNodeApp - Error Based SQLi</a>
+      </div>
+    </li>
+  
+
+  
+  
+  
+    <li>
+      <div>
+        
+        
+        <span class="date day">01</span>
+        <span class="date month small text-muted">Aug</span>
+        <a href="/posts/writeup-traceback/">Traceback Machine - Writeup</a>
+      </div>
+    </li>
+  
+
+  
+  
+  
+    <li>
+      <div>
+        
+        
+        <span class="date day">30</span>
+        <span class="date month small text-muted">Jul</span>
+        <a href="/posts/writeup-0ld-is-g0ld/">0ld is g0ld Challenge - Writeup</a>
+      </div>
+    </li>
+  
+
+  
+  
+  
+    <li>
+      <div>
+        
+        
+        <span class="date day">29</span>
+        <span class="date month small text-muted">Jul</span>
+        <a href="/posts/writeup-blunder/">Blunder Machine - Writeup</a>
+      </div>
+    </li>
+  
+  </ul>
+  
+
+</div>
+:ET

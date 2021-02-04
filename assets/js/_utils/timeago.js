@@ -1,33 +1,31 @@
 /*
- * Calculate the Timeago
+ * Caculate the Timeago
+ * v2.0
+ * https://github.com/cotes2020/jekyll-theme-chirpy
+ * © 2019 Cotes Chung
+ * MIT Licensed
  */
 
 $(function() {
-
-  const timeagoElem = $(".timeago");
-
-  let toRefresh = timeagoElem.length;
-
-  let intervalId = void 0;
 
   function timeago(iso, isLastmod) {
     let now = new Date();
     let past = new Date(iso);
 
-    if (past.getFullYear() !== now.getFullYear()) {
+    if (past.getFullYear() != now.getFullYear()) {
       toRefresh -= 1;
       return past.toLocaleString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric"
+         year: 'numeric',
+         month: 'short',
+         day: 'numeric'
       });
     }
 
-    if (past.getMonth() !== now.getMonth()) {
+    if (past.getMonth() != now.getMonth()) {
       toRefresh -= 1;
       return past.toLocaleString("en-US", {
-        month: "short",
-        day: "numeric"
+         month: 'short',
+         day: 'numeric'
       });
     }
 
@@ -49,33 +47,37 @@ $(function() {
       return minute + " minute" + (minute > 1 ? "s" : "") + " ago";
     }
 
-    return (isLastmod ? "just" : "Just") + " now";
+    return (isLastmod? "just" : "Just") + " now";
   }
+
 
   function updateTimeago() {
     $(".timeago").each(function() {
       if ($(this).children("i").length > 0) {
-        $(this).text();
-        let isLastmod = $(this).hasClass("lastmod");
-        let node = $(this).children("i");
-        let date = node.text(); /* ISO Date: "YYYY-MM-DDTHH:MM:SSZ" */
+        var basic = $(this).text();
+        var isLastmod = $(this).hasClass('lastmod');
+        var node = $(this).children("i");
+        var date = node.text();   /* ISO Date: 'YYYY-MM-DDTHH:MM:SSZ' */
         $(this).text(timeago(date, isLastmod));
         $(this).append(node);
       }
     });
 
-    if (toRefresh === 0 && typeof intervalId !== "undefined") {
-      clearInterval(intervalId); /* stop interval */
+    if (toRefresh == 0 && intervalId != undefined) {
+      clearInterval(intervalId);  /* stop interval */
     }
     return toRefresh;
   }
 
-  if (toRefresh === 0) {
+
+  var toRefresh = $(".timeago").length;
+
+  if (toRefresh == 0) {
     return;
   }
 
   if (updateTimeago() > 0) { /* run immediately */
-    intervalId = setInterval(updateTimeago, 60000); /* run every minute */
+    var intervalId = setInterval(updateTimeago, 60000); /* run every minute */
   }
 
 });

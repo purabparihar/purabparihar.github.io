@@ -1,0 +1,74 @@
+I"�<p><img src="/assets/img/android-pentesting/dynamic-analysis/drozer-main.png" alt="Desktop View" /></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Introduction</span></strong></p>
+
+<hr />
+
+<p>Hi all, Hope everyone is good and doing well. In this blog we gonna look at one awesome framework which is really helpful in <strong>Dynamic Runtime Analysis in Android Application Pentesting</strong>.</p>
+
+<p>The Drozer (<a href="https://labs.f-secure.com/tools/drozer/">Link to Download</a>) is application assessment framework for android created by MWR InfoSecurity. It is written in iPython and has modules to exploit android vulnerabilities such as Leaking Content Providers, LFI, Various Vulnerability Scanners, Reverse Shell etc.</p>
+
+<p>We can also write our own modules to automate, exploit things in android applications.</p>
+
+<p>To getting started with Drozer just install on your system and drozer-agent on android device then we need to do port forwarding to connect with drozer-agent.
+For port forwarding you can use <span style="color:#ff5555">adb forward tcp:31415 tcp:31415</span> command. By default Drozer use 31415 port so in my case I’m gonna use the same.</p>
+
+<p>After forwarding port, enter <span style="color:#ff5555">drozer console connect</span> to connect drozer server to drozer agent which is installed on android device.</p>
+
+<p><img src="/assets/img/android-pentesting/dynamic-analysis/drozer-connect.png" alt="Desktop View" /></p>
+
+<p>PS. In my case I’m going to use multiple vulnerable applications such as DIVA, InsecureBank etc.</p>
+
+<p><span style="color:#ff5555">This blog is meant for educational purposes only.</span></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">Basics of Drozer</span></strong></p>
+
+<hr />
+
+<p>Drozer has various collection of modules which are really helpful in Android Pentesting. To list down all modules of drozer just enter <strong><span style="color:#ff5555">ls or list</span></strong> command.</p>
+
+<p><img src="/assets/img/android-pentesting/dynamic-analysis/drozer-list.png" alt="Desktop View" /></p>
+
+<p>Let’s go through below modules and see what they does exactly.</p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">app.package.list</span></strong></p>
+
+<p>This module is used to get all applications (packages) installed on android device.
+It will show you package names along with application names.</p>
+
+<p>Command : <span style="color:#ff5555">run app.package.list</span></p>
+
+<p>To find particular application we can use -f argument along with application name.</p>
+
+<p>Command : <span style="color:#ff5555">run app.package.list -f insecure</span></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">app.package.attacksurface</span></strong></p>
+
+<p>The app.package.attacksurface module gives attack surface about particular android application in which it shows exported activities, broadcast receivers, content providers and services.</p>
+
+<p>Command : <span style="color:#ff5555">run app.package.attacksurface com.android.insecurebankv2</span></p>
+
+<hr />
+
+<p><strong><span style="color:#ff5555">app.activity.info</span></strong></p>
+
+<p>This module shows exported activities which can be vulnerable.</p>
+
+<p>Command : <span style="color:#ff5555">run app.activity.info -a com.android.insecurebankv2</span></p>
+
+<p>To check if the activity is vulnerable, We can use below command.</p>
+
+<p>Command : <span style="color:#ff5555">run app.activity.start –component com.android.insecurebankv2 com.android.insecurebankv2.DoTransfer</span></p>
+
+<p><img src="/assets/img/android-pentesting/dynamic-analysis/drozer-activity-start.gif" alt="Desktop View" /></p>
+
+<p><span style="color:#ff5555"><strong>Thanks for reading this writeup and all suggestions are welcome.</strong></span></p>
+:ET
