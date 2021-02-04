@@ -8,9 +8,8 @@ title: About
 # MIT License
 ---
 
-Hi, I’m Sujit Suryawanshi From India Working As Information Security Analyst. I Started This Blog To Share My Journey in InfoSec, My Knowledge And To Learn More.
-I’m Mainly Focusing On Web Application Pentesting, Android Application Pentesting, HackTheBox, TryHackMe And Other CTFs.
+Hello, I'm Purab Parihar and I have created this blog to share my knowledge and contribute to community. I love playing HackTheBox 
 
-If wanna contact me, Please ping me on [LinkedIn](https://in.linkedin.com/in/n008h4ck3r)
+If wanna contact me, Please ping me on [LinkedIn](https://in.linkedin.com/in/purabparihar)
 
-<script src="https://www.hackthebox.eu/badge/123340"></script>
+<script src="https://www.hackthebox.eu/badge/168614"></script>
