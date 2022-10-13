@@ -3,7 +3,7 @@ title        = "Purab Parihar"
 languageCode = "en-us"
 theme        = "hello-friend-ng"
 paginate     = 10
-
+publishDir = "docs"
 enableEmoji        = true
 enableGitInfo      = true
 
